@@ -1,7 +1,7 @@
-name: One Chunk Survival
+name: ocs
 version: '${project.version}'
 main: nl.midnan.onechunksurvival.OneChunkSurvival
 api-version: 1.18
 authors: [ Midnan ]
-description: One chunk survival
-website: weetikveel.com
+description: Survive on one-chunk, grow your world by advancements.
+website: midnan.tv

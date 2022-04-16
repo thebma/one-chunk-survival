@@ -1,7 +1,5 @@
 package nl.midnan.onechunksurvival;
 
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
 import org.bukkit.Location;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
@@ -16,8 +14,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class OneChunkSurvivalListener implements Listener {
-
-    final Logger logger = LoggerFactory.getLogger(OneChunkSurvivalListener.class);
     private final JavaPlugin plugin;
 
     private boolean isRunning = false;
@@ -54,7 +50,7 @@ public class OneChunkSurvivalListener implements Listener {
     }
 
     private void teleportAllPlayers(Location location) {
-        logger.debug("Teleporting all players.");
+        plugin.getLogger().info("Teleporting all players.");
         for(Player player : plugin.getServer().getOnlinePlayers()) {
             player.teleport(location);
         }
@@ -72,7 +68,7 @@ public class OneChunkSurvivalListener implements Listener {
     private void doAdvancementCheckLogic() {
         if(!this.isRunning) return;
 
-        logger.debug("Checking for new advancements.");
+        plugin.getLogger().info("Checking for new advancements.");
         for(Player player : plugin.getServer().getOnlinePlayers()) {
             Iterator<Advancement> advancementIterator = plugin.getServer().advancementIterator();
 

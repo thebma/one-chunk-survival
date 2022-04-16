@@ -9,9 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class OneChunkSurvivalStartCommandExecutor implements CommandExecutor {
-
-    final Logger logger = LoggerFactory.getLogger(OneChunkSurvivalStartCommandExecutor.class);
-
     private final JavaPlugin plugin;
 
     public OneChunkSurvivalStartCommandExecutor(JavaPlugin thePlugin) {
