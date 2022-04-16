@@ -48,8 +48,9 @@ border:
   speed: 3    # How many seconds it takes to grow the border.
 
 # Who can start and stop new sessions (requires OP to work)!
+# All names should be lowercase.
 gamemasters:
-  - Notch
+  - notch
 
 # Which categories do we count advancements for? (Best left on default)
 advancement_namespaces:
