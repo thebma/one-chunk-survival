@@ -5,3 +5,12 @@ api-version: 1.18
 authors: [ Midnan ]
 description: Survive on one-chunk, grow your world by advancements.
 website: midnan.tv
+commands:
+  ocs-start:
+      description: Start a new one chunk survival session.
+      usage: /ocs-start
+      permission: ocs.start
+  ocs-stop:
+    description: Stop a one chunk survival session.
+    usage: /ocs-stop
+    permission: ocs.stop
