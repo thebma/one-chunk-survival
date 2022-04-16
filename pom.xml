@@ -6,7 +6,7 @@
 
     <groupId>nl.midnan</groupId>
     <artifactId>one-chunk-survival</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>One Chunk Survival</name>

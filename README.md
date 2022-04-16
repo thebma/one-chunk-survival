@@ -12,7 +12,7 @@ Requirements:
 
 ## Installation
 
-1. Download the .jar file from 
+1. Download the .jar file from [Releases](https://github.com/thebma/one-chunk-survival/releases)
 2. Put in it your "plugins" folder of your Spigot Server.
 3. Boot up your server and use the commands.
 
