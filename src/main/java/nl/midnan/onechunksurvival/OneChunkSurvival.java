@@ -8,11 +8,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.logging.Level;
 
 public class OneChunkSurvival extends JavaPlugin {
-    private File configurationFile;
     private FileConfiguration configuration;
 
     @Override
@@ -29,8 +27,7 @@ public class OneChunkSurvival extends JavaPlugin {
 
     private void loadOrCreateConfig()
     {
-        configurationFile = new File(getDataFolder(), "ocs.yml");
-        getLogger().info("Config at " + getDataFolder());
+        File configurationFile = new File(getDataFolder(), "ocs.yml");
 
         if(!configurationFile.exists()) {
             getLogger().info("Wrote config!");
@@ -44,13 +41,13 @@ public class OneChunkSurvival extends JavaPlugin {
             }
         }
 
-        getLogger().info("Config at " + getDataFolder());
+        getLogger().info("Config located at " + getDataFolder());
 
-        configuration = new YamlConfiguration();
         try {
+            configuration = new YamlConfiguration();
             configuration.load(configurationFile);
         } catch (IOException | InvalidConfigurationException e) {
-            getLogger().log(Level.ALL, "Could not load config...");
+            getLogger().severe("Could not load config...");
         }
     }
 
