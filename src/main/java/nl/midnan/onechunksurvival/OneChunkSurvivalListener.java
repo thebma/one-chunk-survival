@@ -15,75 +15,84 @@ public class OneChunkSurvivalListener implements Listener {
     private final JavaPlugin plugin;
 
     private boolean isRunning = false;
-    private Player invoker = null;
-    private Map<Advancement, Boolean> advancementMapping;
-    private List<Advancement> allAchievementsCached;
+    private Map<String, Boolean> advancementMapping;
+    private List<Advancement> allAdvancements;
     private final List<AdvancementPlayerData> playerAdvancementData = new ArrayList<>();
 
     public OneChunkSurvivalListener(JavaPlugin plugin) {
         this.plugin = plugin;
 
-        getAllAdvancements();
-
         BukkitScheduler sched = this.plugin.getServer().getScheduler();
         sched.scheduleSyncRepeatingTask(plugin, this::doAdvancementCheckLogic, 0, 40);
     }
 
+    private void getAllAdvancements() {
+        advancementMapping = new HashMap<>();
+        List<String> eligibleNamespace = this.plugin.getConfig().getStringList("advancement_namespaces");
+        List<Advancement> eligibleAdvancements = new ArrayList<>();
+        Iterator<Advancement> advancementIterator = plugin.getServer().advancementIterator();
+        while(advancementIterator.hasNext()) {
+            Advancement advancement = advancementIterator.next();
+
+            for(String namespace : eligibleNamespace) {
+                String advancementKey = advancement.getKey().toString().toLowerCase(Locale.ROOT);
+                if(advancementKey.contains(namespace)) {
+                    eligibleAdvancements.add(advancement);
+                    advancementMapping.put(advancementKey, false);
+                    break;
+                }
+            }
+        }
+
+        plugin.getLogger().info("Registered " + eligibleAdvancements.size() + " advancements(s)");
+        allAdvancements = eligibleAdvancements;
+    }
+
+
     @EventHandler
     public void onOneChunkSurvivalStartEvent(OneChunkSurvivalStartEvent startEvent) {
-        this.invoker = startEvent.getInvoker();
+        getAllAdvancements();
+
+        Player invoker = startEvent.getInvoker();
         Location location = startEvent.getLocation();
 
         String locationStr = location.getX() + " " + location.getZ();
-        this.invoker.performCommand("worldborder center " + locationStr);
+        invoker.performCommand("worldborder center " + locationStr);
 
         int borderStart = plugin.getConfig().getInt("border.start");
-        this.invoker.performCommand("worldborder set " + borderStart);
+        invoker.performCommand("worldborder set " + borderStart);
 
-        teleportAllPlayers(location);
-
+        plugin.getLogger().info("Teleporting all players.");
+        for(Player player : plugin.getServer().getOnlinePlayers()) {
+            player.teleport(location);
+        }
         this.isRunning = true;
     }
 
     @EventHandler
     public void onOneChunkSurvivalStopEvent(OneChunkSurvivalStopEvent stopEvent) {
-        this.invoker = stopEvent.getInvoker();
-        this.invoker.performCommand("worldborder set 9999999");
-        this.invoker.performCommand("worldborder center 0 0");
+        Player invoker = stopEvent.getInvoker();
+        invoker.performCommand("worldborder set 9999999");
+        invoker.performCommand("worldborder center 0 0");
         this.isRunning = false;
-    }
-
-    private void teleportAllPlayers(Location location) {
-        plugin.getLogger().info("Teleporting all players.");
-        for(Player player : plugin.getServer().getOnlinePlayers()) {
-            player.teleport(location);
-        }
-    }
-
-    private void getAllAdvancements() {
-        List<Advancement> allAchievements = new ArrayList<>();
-        Iterator<Advancement> advancementIterator = plugin.getServer().advancementIterator();
-        while(advancementIterator.hasNext()) {
-            Advancement advancement = advancementIterator.next();
-            allAchievements.add(advancement);
-        }
-
-        plugin.getLogger().info("Registered " + allAchievements.size() + " achievement(s)");
-        allAchievementsCached = allAchievements;
     }
 
     private void doAdvancementCheckLogic() {
         if(!this.isRunning) return;
 
         for(Player player : plugin.getServer().getOnlinePlayers()) {
-            Iterator<Advancement> advancementIterator = plugin.getServer().advancementIterator();
 
-            while(advancementIterator.hasNext()) {
-                Advancement advancementInQuestion = advancementIterator.next();
+            for(Advancement advancementInQuestion : allAdvancements) {
+
+                String advancementKey = advancementInQuestion.getKey().toString().toLowerCase(Locale.ROOT);
                 AdvancementPlayerData data = getPlayerAdvancementData(player);
-
                 if(data.completedAdvancement(advancementInQuestion)) {
-                    this.plugin.getLogger().info("Advancement " + advancementInQuestion.getKey() + " completed by " + data.player.getDisplayName());
+
+                    boolean didSharedComplete = advancementMapping.get(advancementKey);
+                    if(!didSharedComplete) {
+                        onSharedAdvancementComplete(player, advancementInQuestion);
+                        this.plugin.getLogger().info("Advancement " + advancementKey + " completed by " + data.player.getDisplayName());
+                    }
                 }
             }
         }
@@ -100,16 +109,21 @@ public class OneChunkSurvivalListener implements Listener {
         }
 
         AdvancementPlayerData advancementPlayerData = new AdvancementPlayerData(
-                this.plugin, player, allAchievementsCached
+                this.plugin, player, allAdvancements
         );
 
         playerAdvancementData.add(advancementPlayerData);
         return advancementPlayerData;
     }
 
-    private void newAchievementCompleted(Player completer, Advancement advancement) {
-        advancementMapping.put(advancement, true);
-        plugin.getServer().broadcastMessage(ChatColor.DARK_RED + "Advancement " + advancement.getKey() + " was completed by " + completer.getDisplayName());
-        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "worldborder add 16 1");
+    private void onSharedAdvancementComplete(Player completer, Advancement advancement) {
+        plugin.getServer().broadcastMessage(
+                "Advancement " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + advancement.getKey() + ChatColor.DARK_GREEN + "]" + ChatColor.WHITE +
+                " was completed by " + ChatColor.DARK_RED + "[" + ChatColor.GREEN +completer.getDisplayName() + ChatColor.DARK_RED + "]" + ChatColor.WHITE
+        );
+
+        int borderGrowRate = this.plugin.getConfig().getInt("border.grow");
+        int borderSpeed = this.plugin.getConfig().getInt("border.speed");
+        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "worldborder add " + borderGrowRate + " " + borderSpeed);
     }
 }

@@ -1,9 +1,17 @@
 border:
-  start: 8 #Size of the border at start,
-  grow: 1 #How much it grows each advancement.
-  speed: 3 #How many seconds it costs to grow or shrink the border.
+  start: 16   # Size of the border at start (in blocks, where 16 blocks = one chunk)
+  grow: 8     # How much it grows each advancement (in blocks, where 16 blocks = one chunk)
+  speed: 3    # How many seconds it takes to grow the border.
 
-#Who can start and stop new sessions?
+# Who can start and stop new sessions (requires OP to work)!
 gamemasters:
   - midnan
   - thebma
+
+# Which categories do we count advancements for? (Best left on default)
+advancement_namespaces:
+  - minecraft:story
+  - minecraft:adventure
+  - minecraft:end
+  - minecraft:husbandry
+  - minecraft:nether
