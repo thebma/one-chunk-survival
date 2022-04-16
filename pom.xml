@@ -6,7 +6,7 @@
 
     <groupId>nl.midnan</groupId>
     <artifactId>one-chunk-survival</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>One Chunk Survival</name>
@@ -16,7 +16,7 @@
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <url>weetikveel.com</url>
+    <url>midnan.tv</url>
 
     <build>
         <plugins>
