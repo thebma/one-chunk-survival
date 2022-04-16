@@ -18,12 +18,13 @@ public class OneChunkSurvivalListener implements Listener {
     private Map<String, Boolean> advancementMapping;
     private List<Advancement> allAdvancements;
     private final List<AdvancementPlayerData> playerAdvancementData = new ArrayList<>();
+    private final AdvancementLookupTable advancementLookupTable = new AdvancementLookupTable();
 
     public OneChunkSurvivalListener(JavaPlugin plugin) {
         this.plugin = plugin;
 
-        BukkitScheduler sched = this.plugin.getServer().getScheduler();
-        sched.scheduleSyncRepeatingTask(plugin, this::doAdvancementCheckLogic, 0, 40);
+        BukkitScheduler bukkitScheduler = this.plugin.getServer().getScheduler();
+        bukkitScheduler.scheduleSyncRepeatingTask(plugin, this::doAdvancementCheckLogic, 0, 6);
     }
 
     private void getAllAdvancements() {
@@ -91,7 +92,7 @@ public class OneChunkSurvivalListener implements Listener {
                     boolean didSharedComplete = advancementMapping.get(advancementKey);
                     if(!didSharedComplete) {
                         onSharedAdvancementComplete(player, advancementInQuestion);
-                        this.plugin.getLogger().info("Advancement " + advancementKey + " completed by " + data.player.getDisplayName());
+                        this.plugin.getLogger().info("Advancement " + getAdvancementName(advancementInQuestion) + " completed by " + data.player.getDisplayName());
                     }
                 }
             }
@@ -118,12 +119,18 @@ public class OneChunkSurvivalListener implements Listener {
 
     private void onSharedAdvancementComplete(Player completer, Advancement advancement) {
         plugin.getServer().broadcastMessage(
-                "Advancement " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + advancement.getKey() + ChatColor.DARK_GREEN + "]" + ChatColor.WHITE +
-                " was completed by " + ChatColor.DARK_RED + "[" + ChatColor.GREEN +completer.getDisplayName() + ChatColor.DARK_RED + "]" + ChatColor.WHITE
+                ChatColor.GRAY + "[" + ChatColor.WHITE + "One Chunk Survival" + ChatColor.GRAY + "]" + ChatColor.WHITE +
+                "Advancement " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + getAdvancementName(advancement) + ChatColor.DARK_GREEN + "]" + ChatColor.WHITE +
+                " was completed by " + ChatColor.DARK_RED + "[" + ChatColor.RED +completer.getDisplayName() + ChatColor.DARK_RED + "]" + ChatColor.WHITE
         );
 
         int borderGrowRate = this.plugin.getConfig().getInt("border.grow");
         int borderSpeed = this.plugin.getConfig().getInt("border.speed");
         plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "worldborder add " + borderGrowRate + " " + borderSpeed);
+    }
+
+    private String getAdvancementName(Advancement advancement) {
+        String advancementKey = advancement.getKey().toString().toLowerCase(Locale.ROOT);
+        return advancementLookupTable.get(advancementKey);
     }
 }
