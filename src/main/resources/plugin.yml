@@ -1,0 +1,7 @@
+name: One Chunk Survival
+version: '${project.version}'
+main: nl.midnan.onechunksurvival.OneChunkSurvival
+api-version: 1.18
+authors: [ Midnan ]
+description: One chunk survival
+website: weetikveel.com
