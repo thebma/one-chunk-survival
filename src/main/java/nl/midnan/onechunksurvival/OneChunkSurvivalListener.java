@@ -3,27 +3,27 @@ package nl.midnan.onechunksurvival;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.advancement.Advancement;
-import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class OneChunkSurvivalListener implements Listener {
     private final JavaPlugin plugin;
 
     private boolean isRunning = false;
     private Player invoker = null;
-    private Location location = null;
     private Map<Advancement, Boolean> advancementMapping;
+    private List<Advancement> allAchievementsCached;
+    private final List<AdvancementPlayerData> playerAdvancementData = new ArrayList<>();
 
     public OneChunkSurvivalListener(JavaPlugin plugin) {
         this.plugin = plugin;
+
+        getAllAdvancements();
 
         BukkitScheduler sched = this.plugin.getServer().getScheduler();
         sched.scheduleSyncRepeatingTask(plugin, this::doAdvancementCheckLogic, 0, 40);
@@ -31,24 +31,23 @@ public class OneChunkSurvivalListener implements Listener {
 
     @EventHandler
     public void onOneChunkSurvivalStartEvent(OneChunkSurvivalStartEvent startEvent) {
-        initializeAchievements();
-
         this.invoker = startEvent.getInvoker();
-        this.location = startEvent.getLocation();
+        Location location = startEvent.getLocation();
 
-        String locationStr = this.location.getX() + " " + this.location.getZ();
+        String locationStr = location.getX() + " " + location.getZ();
         this.invoker.performCommand("worldborder center " + locationStr);
 
         int borderStart = plugin.getConfig().getInt("border.start");
         this.invoker.performCommand("worldborder set " + borderStart);
 
-        teleportAllPlayers(this.location);
+        teleportAllPlayers(location);
 
         this.isRunning = true;
     }
 
     @EventHandler
     public void onOneChunkSurvivalStopEvent(OneChunkSurvivalStopEvent stopEvent) {
+        this.invoker = stopEvent.getInvoker();
         this.invoker.performCommand("worldborder set 9999999");
         this.invoker.performCommand("worldborder center 0 0");
         this.isRunning = false;
@@ -61,13 +60,16 @@ public class OneChunkSurvivalListener implements Listener {
         }
     }
 
-    private void initializeAchievements() {
-        advancementMapping = new HashMap<>();
+    private void getAllAdvancements() {
+        List<Advancement> allAchievements = new ArrayList<>();
         Iterator<Advancement> advancementIterator = plugin.getServer().advancementIterator();
         while(advancementIterator.hasNext()) {
-            Advancement adv = advancementIterator.next();
-            advancementMapping.put(adv, false);
+            Advancement advancement = advancementIterator.next();
+            allAchievements.add(advancement);
         }
+
+        plugin.getLogger().info("Registered " + allAchievements.size() + " achievement(s)");
+        allAchievementsCached = allAchievements;
     }
 
     private void doAdvancementCheckLogic() {
@@ -78,27 +80,36 @@ public class OneChunkSurvivalListener implements Listener {
 
             while(advancementIterator.hasNext()) {
                 Advancement advancementInQuestion = advancementIterator.next();
-                boolean playerCompletedAdvancement = checkAdvancementOnPlayer(player, advancementInQuestion);
+                AdvancementPlayerData data = getPlayerAdvancementData(player);
 
-                if(playerCompletedAdvancement) {
-                    boolean wasCompleted = advancementMapping.get(advancementInQuestion);
-
-                    if(!wasCompleted) {
-                        //newAchievementCompleted(player, advancementInQuestion);
-                    }
+                if(data.completedAdvancement(advancementInQuestion)) {
+                    this.plugin.getLogger().info("Advancement " + advancementInQuestion.getKey() + " completed by " + data.player.getDisplayName());
                 }
             }
         }
     }
 
-    private boolean checkAdvancementOnPlayer(Player player, Advancement advancement) {
-        AdvancementProgress advancementProgress = player.getAdvancementProgress(advancement);
-        return advancementProgress.isDone();
+    private AdvancementPlayerData getPlayerAdvancementData(Player player) {
+        String playerDisplayName = player.getDisplayName().toLowerCase(Locale.ROOT);
+        for(AdvancementPlayerData data : playerAdvancementData) {
+            String playerDataUsername = data.player.getDisplayName().toLowerCase(Locale.ROOT);
+
+            if(playerDisplayName.equalsIgnoreCase(playerDataUsername)) {
+                return data;
+            }
+        }
+
+        AdvancementPlayerData advancementPlayerData = new AdvancementPlayerData(
+                this.plugin, player, allAchievementsCached
+        );
+
+        playerAdvancementData.add(advancementPlayerData);
+        return advancementPlayerData;
     }
 
     private void newAchievementCompleted(Player completer, Advancement advancement) {
         advancementMapping.put(advancement, true);
-        plugin.getServer().broadcastMessage(ChatColor.DARK_RED + "Advancement " + advancement.getKey().getKey() + " was completed by " + completer.getDisplayName());
+        plugin.getServer().broadcastMessage(ChatColor.DARK_RED + "Advancement " + advancement.getKey() + " was completed by " + completer.getDisplayName());
         plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "worldborder add 16 1");
     }
 }

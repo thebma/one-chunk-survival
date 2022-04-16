@@ -24,7 +24,7 @@ public class OneChunkSurvivalStopCommandExecutor implements CommandExecutor {
             return false;
         }
 
-        Player player = (Player) sender;
+        Player player = (Player)sender;
         String playerName = player.getDisplayName().toLowerCase(Locale.ROOT);
 
         if(!this.gamemasters.contains(playerName)) {
