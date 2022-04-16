@@ -6,11 +6,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
+import java.util.Locale;
+
 public class OneChunkSurvivalStopCommandExecutor implements CommandExecutor {
     private final JavaPlugin plugin;
+    private List<String> gamemasters;
 
     public OneChunkSurvivalStopCommandExecutor(JavaPlugin thePlugin) {
         this.plugin = thePlugin;
+        this.gamemasters = this.plugin.getConfig().getStringList("gamemasters");
     }
 
     @Override
@@ -20,14 +25,16 @@ public class OneChunkSurvivalStopCommandExecutor implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        String playerName = player.getDisplayName().toLowerCase(Locale.ROOT);
 
-        if(player.getDisplayName().compareToIgnoreCase("midnan") != 0) {
-            player.sendMessage("pmiD");
+        if(!this.gamemasters.contains(playerName)) {
+            player.sendMessage("You're not a gamemaster, repent heretic!");
             return false;
         }
 
-        OneChunkSurvivalStartEvent start = new OneChunkSurvivalStartEvent(player, player.getLocation());
+        OneChunkSurvivalStopEvent start = new OneChunkSurvivalStopEvent(player);
         plugin.getServer().getPluginManager().callEvent(start);
+
         return true;
     }
 }

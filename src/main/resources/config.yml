@@ -1,0 +1,9 @@
+border:
+  start: 8 #Size of the border at start,
+  grow: 1 #How much it grows each advancement.
+  speed: 3 #How many seconds it costs to grow or shrink the border.
+
+#Who can start and stop new sessions?
+gamemasters:
+  - midnan
+  - thebma
