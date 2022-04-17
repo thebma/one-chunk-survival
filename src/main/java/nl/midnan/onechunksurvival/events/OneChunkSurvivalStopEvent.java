@@ -1,24 +1,17 @@
-package nl.midnan.onechunksurvival;
+package nl.midnan.onechunksurvival.events;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class OneChunkSurvivalStartEvent extends Event {
+public class OneChunkSurvivalStopEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final Player invoker;
-    private final Location location;
 
-    public OneChunkSurvivalStartEvent(Player invoker, Location location) {
+    public OneChunkSurvivalStopEvent(Player invoker) {
         this.invoker = invoker;
-        this.location = location;
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public Player getInvoker() {

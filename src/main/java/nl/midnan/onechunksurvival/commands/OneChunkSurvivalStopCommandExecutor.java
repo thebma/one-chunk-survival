@@ -1,5 +1,6 @@
-package nl.midnan.onechunksurvival;
+package nl.midnan.onechunksurvival.commands;
 
+import nl.midnan.onechunksurvival.events.OneChunkSurvivalStopEvent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,14 +10,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.List;
 import java.util.Locale;
 
-public class OneChunkSurvivalStartCommandExecutor implements CommandExecutor {
+public class OneChunkSurvivalStopCommandExecutor implements CommandExecutor {
     private final JavaPlugin plugin;
     private List<String> gamemasters;
 
-    public OneChunkSurvivalStartCommandExecutor(JavaPlugin thePlugin) {
+    public OneChunkSurvivalStopCommandExecutor(JavaPlugin thePlugin) {
         this.plugin = thePlugin;
         this.gamemasters = this.plugin.getConfig().getStringList("gamemasters");
-        plugin.getLogger().info("Registered " + this.gamemasters.size() + " gamemasters...");
     }
 
     @Override
@@ -25,7 +25,7 @@ public class OneChunkSurvivalStartCommandExecutor implements CommandExecutor {
             return false;
         }
 
-        Player player = (Player) sender;
+        Player player = (Player)sender;
         String playerName = player.getDisplayName().toLowerCase(Locale.ROOT);
 
         if(!this.gamemasters.contains(playerName)) {
@@ -33,7 +33,7 @@ public class OneChunkSurvivalStartCommandExecutor implements CommandExecutor {
             return false;
         }
 
-        OneChunkSurvivalStartEvent start = new OneChunkSurvivalStartEvent(player, player.getLocation());
+        OneChunkSurvivalStopEvent start = new OneChunkSurvivalStopEvent(player);
         plugin.getServer().getPluginManager().callEvent(start);
 
         return true;

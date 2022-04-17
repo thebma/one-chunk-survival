@@ -1,4 +1,4 @@
-package nl.midnan.onechunksurvival;
+package nl.midnan.onechunksurvival.misc;
 
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;

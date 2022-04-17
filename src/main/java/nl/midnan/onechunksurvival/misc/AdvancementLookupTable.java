@@ -1,4 +1,4 @@
-package nl.midnan.onechunksurvival;
+package nl.midnan.onechunksurvival.misc;
 
 import java.util.HashMap;
 import java.util.Map;
