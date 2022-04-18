@@ -30,7 +30,7 @@ public class OneChunkSurvivalStartCommandExecutor implements CommandExecutor {
         String playerName = player.getDisplayName().toLowerCase(Locale.ROOT);
 
         if(!this.gamemasters.contains(playerName)) {
-            player.sendMessage("You're not a gamemaster, repent heretic!");
+            player.sendMessage("You're not a game master, repent heretic!");
             return false;
         }
 

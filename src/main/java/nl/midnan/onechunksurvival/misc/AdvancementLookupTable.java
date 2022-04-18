@@ -10,7 +10,7 @@ public class AdvancementLookupTable {
     public AdvancementLookupTable() {
         ADVANCEMENT_NAMES = new HashMap<>();
         ADVANCEMENT_NAMES.put("minecraft:adventure/adventuring_time", "Adventuring Time");
-        ADVANCEMENT_NAMES.put("minecraft:adventure/kill_a_mob, ", "Monster Hunter");
+        ADVANCEMENT_NAMES.put("minecraft:adventure/kill_a_mob", "Monster Hunter");
         ADVANCEMENT_NAMES.put("minecraft:adventure/kill_all_mobs", "Monsters Hunted");
         ADVANCEMENT_NAMES.put("minecraft:adventure/root", "Adventure Advancement");
         ADVANCEMENT_NAMES.put("minecraft:adventure/shoot_arrow", "Take Aim");
@@ -25,7 +25,7 @@ public class AdvancementLookupTable {
         ADVANCEMENT_NAMES.put("minecraft:end/dragon_egg", "The Next Generation");
         ADVANCEMENT_NAMES.put("minecraft:end/elytra", "Sky's the Limit");
         ADVANCEMENT_NAMES.put("minecraft:end/enter_end_gateway", "Remote Getaway");
-        ADVANCEMENT_NAMES.put("minecraft:end/find_end_city", "End Advancementaa");
+        ADVANCEMENT_NAMES.put("minecraft:end/find_end_city", "End Advancement");
         ADVANCEMENT_NAMES.put("minecraft:end/kill_dragon", "Free the End");
         ADVANCEMENT_NAMES.put("minecraft:end/levitate", "Great View From Up Here");
         ADVANCEMENT_NAMES.put("minecraft:end/respawn_dragon", "The End... Again...");

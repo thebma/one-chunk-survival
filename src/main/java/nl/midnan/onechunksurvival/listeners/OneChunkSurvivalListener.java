@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class OneChunkSurvivalListener implements Listener {
     private final JavaPlugin plugin;
@@ -67,11 +68,20 @@ public class OneChunkSurvivalListener implements Listener {
         int borderStart = plugin.getConfig().getInt("border.start");
         invoker.performCommand("worldborder set " + borderStart);
 
+        invoker.performCommand("gamerule announceAdvancements false");
+        invoker.performCommand("gamerule sendCommandFeedback false");
+
         plugin.getLogger().info("Teleporting all players.");
         for(Player player : plugin.getServer().getOnlinePlayers()) {
             player.teleport(location);
         }
+
         this.isRunning = true;
+
+        plugin.getServer().broadcastMessage(
+                ChatColor.GRAY + "[" + ChatColor.WHITE + "One Chunk Survival" + ChatColor.GRAY + "]" + ChatColor.WHITE +
+                " " + ChatColor.GREEN + invoker.getDisplayName() + " started a new One Chunk Survival!" + ChatColor.WHITE
+        );
     }
 
     @EventHandler
@@ -79,7 +89,14 @@ public class OneChunkSurvivalListener implements Listener {
         Player invoker = stopEvent.getInvoker();
         invoker.performCommand("worldborder set 9999999");
         invoker.performCommand("worldborder center 0 0");
+        invoker.performCommand("gamerule announceAdvancements true");
+        invoker.performCommand("gamerule sendCommandFeedback true");
+
         this.isRunning = false;
+        plugin.getServer().broadcastMessage(
+                ChatColor.GRAY + "[" + ChatColor.WHITE + "One Chunk Survival" + ChatColor.GRAY + "]" + ChatColor.WHITE +
+                        " " + ChatColor.GREEN + invoker.getDisplayName() + " stopped the One Chunk Survival :(" + ChatColor.WHITE
+        );
     }
 
     private void doAdvancementCheckLogic() {
@@ -95,6 +112,8 @@ public class OneChunkSurvivalListener implements Listener {
 
                     boolean didSharedComplete = advancementMapping.get(advancementKey);
                     if(!didSharedComplete) {
+                        advancementMapping.put(advancementKey, true);
+
                         onSharedAdvancementComplete(player, advancementInQuestion);
                         this.plugin.getLogger().info("Advancement " + getAdvancementName(advancementInQuestion) + " completed by " + data.player.getDisplayName());
                     }
@@ -124,17 +143,31 @@ public class OneChunkSurvivalListener implements Listener {
     private void onSharedAdvancementComplete(Player completer, Advancement advancement) {
         plugin.getServer().broadcastMessage(
                 ChatColor.GRAY + "[" + ChatColor.WHITE + "One Chunk Survival" + ChatColor.GRAY + "]" + ChatColor.WHITE +
-                "Advancement " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + getAdvancementName(advancement) + ChatColor.DARK_GREEN + "]" + ChatColor.WHITE +
-                " was completed by " + ChatColor.DARK_RED + "[" + ChatColor.RED +completer.getDisplayName() + ChatColor.DARK_RED + "]" + ChatColor.WHITE
+                " Advancement " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + getAdvancementName(advancement) + ChatColor.DARK_GREEN + "]" + ChatColor.WHITE +
+                " was completed by " + ChatColor.DARK_BLUE + "[" + ChatColor.BLUE +completer.getDisplayName() + ChatColor.DARK_BLUE + "]." + ChatColor.WHITE +
+                " You completed " + countCompleted() + " out of " + allAdvancements.size() + "."
         );
 
         int borderGrowRate = this.plugin.getConfig().getInt("border.grow");
         int borderSpeed = this.plugin.getConfig().getInt("border.speed");
+
         plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "worldborder add " + borderGrowRate + " " + borderSpeed);
     }
 
     private String getAdvancementName(Advancement advancement) {
         String advancementKey = advancement.getKey().toString().toLowerCase(Locale.ROOT);
         return advancementLookupTable.get(advancementKey);
+    }
+
+    private int countCompleted() {
+        AtomicInteger count = new AtomicInteger();
+
+        advancementMapping.forEach((key, value) -> {
+            if(value) {
+                count.getAndIncrement();
+            }
+        });
+
+        return count.get();
     }
 }
